@@ -65,7 +65,7 @@ condition_4_2 <- paste0("_",condition_4_split[2],"_")
 control_1 <- paste0("_",control,"_")
 
 #SEPARATE FILES BASED ON CONDITION/TREATMENT
-#breaks up the last of input directory files based on the user inputted strings above
+#breaks up the list of input directory files based on the user inputted strings above
 filenames_condition_1 <- Filter(function(x) grepl(condition_1_1, x)&!grepl("_background", x)|grepl(condition_1_2, x)&!grepl("_background", x)|grepl(condition_1_3, x)&!grepl("_background", x), temp1)
 filenames_condition_2 <- Filter(function(x) grepl(condition_2_1, x)&!grepl("_background", x)|grepl(condition_2_2, x)&!grepl("_background", x)|grepl(condition_2_3, x)&!grepl("_background", x), temp1)
 filenames_condition_3 <- Filter(function(x) grepl(condition_3_1, x)&!grepl("_background", x)|grepl(condition_3_2, x)&!grepl("_background", x)|grepl(condition_3_3, x)&!grepl("_background", x), temp1)
@@ -80,8 +80,6 @@ mydata_assembled_condition_3 <- data.table:::rbindlist(lapply(filenames_conditio
 mydata_assembled_condition_4 <- data.table:::rbindlist(lapply(filenames_condition_4, read.csv), use.names=FALSE)
 mydata_assembled_condition_control <- data.table:::rbindlist(lapply(filenames_control, read.csv), use.names=FALSE)
 mydata_assembled_background <- data.table:::rbindlist(lapply(filenames_background, read.csv), use.names=FALSE)
-
-#dplyr:::select(where(~!any(is.na(.))))
 
 
 df_list <- list(mydata_assembled_condition_1,mydata_assembled_condition_2,mydata_assembled_condition_3, mydata_assembled_condition_4,
@@ -110,9 +108,7 @@ background_data <- mydata_assembled_background %>%
   dplyr:::select(FoV_Frame_ID, green_background, red_background)
 
 #Stacks data for multiple conditions into a single df
-#Filters any tracks that split (i.e. number of rows of data per cell != 145),
-#and any tracks that don't have 145 unique time points.
-#LinkType filter removes any objects recognised by LAP tracker as children of a split or mitosis  
+#Filters any tracks that split (i.e. have excessive duplicates of unique_ID and Frame)
 
 extract_relevant_columns=function(df1, area_multiplier, intensity_multiplier) {
   temp1 <- df1 %>% dplyr:::select(Metadata_T, Metadata_Frame, unique_ID, Intensity_MeanIntensity_Red, #select all useful columns
